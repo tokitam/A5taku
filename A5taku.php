@@ -11,6 +11,8 @@ class A5taku {
     const MASK = 128;
     const SPACE = 0x20;
     const NUM_OF_GENRE = 8;
+    const MAGIC_CODE1 = '5TAKUQDT';
+    const MAGIC_CODE2 = '5TAKUQDX';
 
     public function __construct() {
 	$this->genre = array();
@@ -72,7 +74,13 @@ class A5taku {
     }
     
     private function read_magic_code() {
-	$this->read_raw_skip(8);
+	$magic_code = $this->read_raw_string(8);
+	if ($magic_code == self::MAGIC_CODE1 ||
+	    $magic_code == self::MAGIC_CODE2) {
+	    // OK
+	} else {
+	    throw new Exception('No good 5TQ file format.');
+	}
     }
     
     private function read_fill() {

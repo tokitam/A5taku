@@ -10,8 +10,8 @@ class A5taku {
     private $fp;
     const MASK = 128;
     const SPACE = 0x20;
-    var $call_count = 0;
-    
+    const NUM_OF_GENRE = 8;
+
     public function __construct() {
 	$this->genre = array();
     }
@@ -26,10 +26,10 @@ class A5taku {
     }
     
     public function read_all() {
-	for ($i=0; $i < 8 ; $i++) {
+	for ($i=0; $i < self::NUM_OF_GENRE; $i++) {
 	    $this->read_header($i);
 	}
-	for ($i=0; $i < 8 ; $i++) {
+	for ($i=0; $i < self::NUM_OF_GENRE; $i++) {
 	    $size = $this->genre[$i]['size'];
 	    for ($j=0; $j < $size; $j++) {
 		$this->genre[$i][$j]['question'] = $this->read_question();
@@ -60,11 +60,11 @@ class A5taku {
     }
 
     private function read_size() {
-	return ord($this->mygetc($this->fp)) + ord($this->mygetc($this->fp)) * 256;
+	return ord($this->mygetc()) + ord($this->mygetc()) * 256;
     }
 
     private function read_skip() {
-	return ord($this->mygetc($this->fp))  + ord($this->mygetc($this->fp));
+	return ord($this->mygetc())  + ord($this->mygetc()) * 256;
     }
     
     private function read_player_file() {
@@ -94,14 +94,14 @@ class A5taku {
 
     private function read_raw_skip($length) {
 	for ($i=0; $i < $length; $i++) {
-	    $this->mygetc($this->fp);
+	    $this->mygetc();
 	}
     }
 
     private function read_raw_string($length, $flg_mask=false) {
 	$i = 0;
 	$s = '';
-	while (false !== ($char = $this->mygetc($this->fp))) {
+	while (false !== ($char = $this->mygetc())) {
 	    $char = ord($char);
 	    if ($flg_mask) {
 		if ($char == self::SPACE) {
@@ -118,12 +118,11 @@ class A5taku {
 	    }
 	}
 
-	return mb_convert_encoding($s, 'utf8', 'sjis');
+	return trim(mb_convert_encoding($s, 'utf8', 'sjis'));
     }
     
-    private function mygetc($fp) {
-	$this->call_count++;
-	return fgetc($fp);
+    private function mygetc() {
+	return fgetc($this->fp);
     }
 }
 
